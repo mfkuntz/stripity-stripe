@@ -16,19 +16,19 @@ if Code.ensure_loaded?(Req) do
 
     @impl true
     def request(method, url, headers, body, _opts) do
-      {req_body_opts, req_headers} = build_body_and_headers(body, headers)
+      {req_opts, req_headers} = build_req_opts(body, headers)
 
-      req =
-        Req.new(
-          method: method,
-          url: url,
-          headers: req_headers,
-          # Disable automatic JSON decoding — Stripe.API handles that
-          decode_body: false,
-          # Disable retry — Stripe.API has its own retry logic
-          retry: false
-        )
-        |> Map.update!(:options, &Map.merge(&1, req_body_opts))
+      base_opts = [
+        method: method,
+        url: url,
+        headers: req_headers,
+        # Disable automatic JSON decoding — Stripe.API handles that
+        decode_body: false,
+        # Disable retry — Stripe.API has its own retry logic
+        retry: false
+      ]
+
+      req = Req.new(base_opts ++ req_opts)
 
       case Req.request(req) do
         {:ok, %{status: status, headers: resp_headers, body: resp_body}} ->
@@ -47,7 +47,7 @@ if Code.ensure_loaded?(Req) do
       []
     end
 
-    defp build_body_and_headers({:multipart, parts}, headers) do
+    defp build_req_opts({:multipart, parts}, headers) do
       multipart =
         Enum.map(parts, fn
           {:file, content, disposition, extra_headers} ->
@@ -78,11 +78,11 @@ if Code.ensure_loaded?(Req) do
           String.downcase(key) == "content-type"
         end)
 
-      {%{form_multipart: multipart}, filtered_headers}
+      {[form_multipart: multipart], filtered_headers}
     end
 
-    defp build_body_and_headers(body, headers) do
-      {%{body: body}, headers}
+    defp build_req_opts(body, headers) do
+      {[body: body], headers}
     end
 
     # only newer versions of req define `get_headers_list`
