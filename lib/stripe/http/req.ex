@@ -31,8 +31,8 @@ if Code.ensure_loaded?(Req) do
         |> Map.update!(:options, &Map.merge(&1, req_body_opts))
 
       case Req.request(req) do
-        {:ok, %{status: status, headers: resp_headers, body: resp_body}} ->
-          {:ok, status, flatten_headers(resp_headers), resp_body}
+        {:ok, %{status: status, body: resp_body}} = response ->
+          {:ok, status, Req.get_headers_list(response), resp_body}
 
         {:error, %{__struct__: _, reason: reason}} ->
           {:error, reason}
@@ -83,16 +83,6 @@ if Code.ensure_loaded?(Req) do
 
     defp build_body_and_headers(body, headers) do
       {%{body: body}, headers}
-    end
-
-    defp flatten_headers(headers) when is_map(headers) do
-      Enum.flat_map(headers, fn {name, values} ->
-        Enum.map(List.wrap(values), fn value -> {name, value} end)
-      end)
-    end
-
-    defp flatten_headers(headers) when is_list(headers) do
-      headers
     end
   end
 end
