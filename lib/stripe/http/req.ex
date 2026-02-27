@@ -31,8 +31,8 @@ if Code.ensure_loaded?(Req) do
         |> Map.update!(:options, &Map.merge(&1, req_body_opts))
 
       case Req.request(req) do
-        {:ok, %{status: status, body: resp_body}} = response ->
-          {:ok, status, Req.get_headers_list(response), resp_body}
+        {:ok, %{status: status, headers: resp_headers, body: resp_body}} ->
+          {:ok, status, flatten_headers(resp_headers), resp_body}
 
         {:error, %{__struct__: _, reason: reason}} ->
           {:error, reason}
@@ -83,6 +83,15 @@ if Code.ensure_loaded?(Req) do
 
     defp build_body_and_headers(body, headers) do
       {%{body: body}, headers}
+    end
+
+    # only newer versions of req define `get_headers_list`
+    # borrowed from here https://github.com/wojtekmach/req/blob/234b72764d91892be2bd0be557803a7fccacd16c/lib/req/fields.ex#L226
+    defp flatten_headers(headers) do
+      for {name, values} <- headers,
+          value <- values do
+        {name, value}
+      end
     end
   end
 end
