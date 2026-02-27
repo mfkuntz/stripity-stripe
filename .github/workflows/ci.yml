@@ -19,7 +19,7 @@ jobs:
       STRIPE_SECRET_KEY: non_empty_string
       SKIP_STRIPE_MOCK_RUN: true
       SHELL: /bin/bash # erlexec needs this
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Test (OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}})
     strategy:
       matrix:
@@ -47,7 +47,7 @@ jobs:
         run: mix test
 
   lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Linting
     strategy:
       matrix:
