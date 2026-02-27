@@ -1,5 +1,6 @@
 defmodule Stripe.HTTPTest do
-  use ExUnit.Case, async: true
+  # since we mutate the global app env, we can't run these tests async
+  use ExUnit.Case, async: false
 
   describe "resolve_http_module/0" do
     setup do
