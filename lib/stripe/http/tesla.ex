@@ -26,7 +26,7 @@ if Code.ensure_loaded?(Tesla) && Code.ensure_loaded?(Finch) do
 
     @impl true
     def supervisor_children do
-      [{Finch, name: StripeFinch}]
+      [Finch.child_spec(name: StripeFinch)]
     end
 
     defp prepare_body({:multipart, parts}, headers) do
