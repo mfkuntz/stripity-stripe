@@ -11,6 +11,14 @@ defmodule Stripe.HTTP.TeslaTest do
   end
 
   describe "request/5 integration" do
+    setup do
+      if Code.ensure_loaded?(Tesla) and Code.ensure_loaded?(Finch) do
+        start_supervised!({Finch, name: StripeFinch})
+      end
+
+      :ok
+    end
+
     @tag :tesla_only
     test "makes a successful request through Tesla" do
       if Code.ensure_loaded?(Tesla) and Code.ensure_loaded?(Finch) do

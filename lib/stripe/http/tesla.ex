@@ -84,11 +84,14 @@ if Code.ensure_loaded?(Tesla) && Code.ensure_loaded?(Finch) do
     end
 
     defp client do
-      middleware = [
-        Tesla.Middleware.OpenTelemetry,
-        Tesla.Middleware.DecompressResponse,
-        {Tesla.Middleware.Timeout, timeout: @client_timeout}
-      ]
+      extra_middleware = Stripe.Config.resolve(:tesla_middleware, [])
+
+      middleware =
+        extra_middleware ++
+          [
+            Tesla.Middleware.DecompressResponse,
+            {Tesla.Middleware.Timeout, timeout: @client_timeout}
+          ]
 
       Tesla.client(middleware, @adapter)
     end
