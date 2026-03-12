@@ -10,10 +10,17 @@ Logger.configure(level: :info)
 test_http_adapter =
   case System.get_env("STRIPE_HTTP_CLIENT") do
     "req" -> Stripe.HTTP.Req
+    "tesla" -> Stripe.HTTP.Tesla
     _ -> Stripe.HTTP.Hackney
   end
 
 Application.put_env(:stripity_stripe, :test_http_adapter, test_http_adapter)
+
+# The Stripe application supervisor has already started by this point,
+# so we need to manually start any children required by the selected adapter.
+for child_spec <- test_http_adapter.supervisor_children() do
+  Supervisor.start_child(Stripe.Supervisor, child_spec)
+end
 
 unless System.get_env("SKIP_STRIPE_MOCK_RUN") do
   {:ok, _pid} = Stripe.StripeMock.start_link(port: 12111, global: true)
