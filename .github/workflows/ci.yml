@@ -28,7 +28,7 @@ jobs:
         # otp: [24, 25, 26]
         elixir: ["1.18"]
         otp: [27]
-        http_client: ["hackney", "req"]
+        http_client: ["hackney", "req", "tesla"]
     services:
       stripe-mock:
         image: stripe/stripe-mock:v0.144.0

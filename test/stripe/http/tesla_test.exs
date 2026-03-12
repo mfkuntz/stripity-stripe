@@ -13,7 +13,10 @@ defmodule Stripe.HTTP.TeslaTest do
   describe "request/5 integration" do
     setup do
       if Code.ensure_loaded?(Tesla) and Code.ensure_loaded?(Finch) do
-        start_supervised!({Finch, name: StripeFinch})
+        case start_supervised({Finch, name: StripeFinch}) do
+          {:ok, _pid} -> :ok
+          {:error, {:already_started, _pid}} -> :ok
+        end
       end
 
       :ok
