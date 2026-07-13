@@ -85,11 +85,12 @@ if Code.ensure_loaded?(Tesla) && Code.ensure_loaded?(Finch) do
 
     defp client do
       extra_middleware = Stripe.Config.resolve(:tesla_middleware, [])
+      max_body_size = Stripe.Config.resolve(:tesla_max_body_size, 32 * 1024 * 1024)
 
       middleware =
         extra_middleware ++
           [
-            Tesla.Middleware.DecompressResponse,
+            {Tesla.Middleware.DecompressResponse, max_body_size: max_body_size},
             {Tesla.Middleware.Timeout, timeout: @client_timeout}
           ]
 
